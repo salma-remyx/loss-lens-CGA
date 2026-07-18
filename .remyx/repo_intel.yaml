@@ -1,0 +1,12 @@
+schema_version: 1
+fork: salma-remyx/loss-lens-CGA
+observed_landing_zones: []
+rejected_shapes:
+- shape_tag: null
+  reason_code: null
+  reason_summary: ''
+  observed:
+  - arxiv: 2504.17618v1
+    timestamp: '2026-07-18T10:45:35Z'
+coordination_signals: []
+last_updated: '2026-07-18T10:45:35Z'
