@@ -12,7 +12,12 @@ observed_landing_zones:
       ingestion driver in the same '
     branch: barycentric-neural-networks-and-length-weighted-persistent-e
     timestamp: '2026-07-19T04:53:55Z'
-  last_observed: '2026-07-19T04:53:55Z'
+  - arxiv: 2505.02809v2
+    mode: Mode 2 (adapted port)
+    call_site_specifics: (none)
+    branch: towards-quantifying-the-hessian-structure-of-neural-networks
+    timestamp: '2026-07-19T22:45:05Z'
+  last_observed: '2026-07-19T22:45:05Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -21,4 +26,4 @@ rejected_shapes:
   - arxiv: 2504.17618v1
     timestamp: '2026-07-18T10:45:35Z'
 coordination_signals: []
-last_updated: '2026-07-19T04:53:55Z'
+last_updated: '2026-07-19T22:45:05Z'
