@@ -10,6 +10,12 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from database.db_util import *
+from script_util.hessian_structure import (
+    block_diagonal_ratio,
+    layer_block_spectrum,
+    off_diagonal_coupling,
+    static_dynamic_forces,
+)
 
 
 def update_mode_losslandscape(
@@ -355,6 +361,50 @@ def update_mode_persistence_barcode(
     query = {"caseId": case_id, "modelId": model_id, "modeId": mode_id}
     record = {"edges": persistence_barcode}
     addOrUpdateDocument(PERSISTENCE_BARCODE, query, record)
+
+
+def process_hessian_structure(
+    hessian_csv: str, block_sizes: List[int], baseline_csv: str = None
+) -> Dict:
+    """Ingest a Hessian matrix from CSV and quantify its block-diagonal structure.
+
+    The CSV holds a symmetric numeric matrix (one comma-separated row per line,
+    e.g. as produced by ``numpy.savetxt``). ``block_sizes`` gives the parameter
+    count of each layer block; their sum must equal the matrix dimension. When
+    ``baseline_csv`` (a random-initialization Hessian of the same architecture)
+    is supplied, the static/dynamic force decomposition is computed as well.
+
+    Adapted from "Towards Quantifying the Hessian Structure of Neural Networks"
+    (arXiv:2505.02809).
+    """
+    hessian = np.loadtxt(hessian_csv, delimiter=",")
+    if hessian.ndim == 1:
+        hessian = hessian.reshape(1, -1)
+    structure = {
+        "block_diagonal_ratio": block_diagonal_ratio(hessian, block_sizes),
+        "off_diagonal_coupling": off_diagonal_coupling(hessian, block_sizes),
+        "layer_block_spectrum": layer_block_spectrum(hessian, block_sizes),
+    }
+    if baseline_csv is not None:
+        baseline = np.loadtxt(baseline_csv, delimiter=",")
+        if baseline.ndim == 1:
+            baseline = baseline.reshape(1, -1)
+        structure["forces"] = static_dynamic_forces(hessian, baseline, block_sizes)
+    return structure
+
+
+def update_mode_hessian_structure(
+    case_id: str, model_id: str, mode_id: str, structure: Dict
+):
+    if not dbExists():
+        createDB()
+
+    if not collectionExists(HESSIAN_STRUCTURE):
+        createCollection(HESSIAN_STRUCTURE)
+
+    query = {"caseId": case_id, "modelId": model_id, "modeId": mode_id}
+    record = {"structure": structure}
+    addOrUpdateDocument(HESSIAN_STRUCTURE, query, record)
 
 
 def process_persistence_diagrams():

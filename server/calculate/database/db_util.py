@@ -13,6 +13,7 @@ CONFUSION_MATRIX = "confusion-matrix"
 CKA_SIMILARITY = "cka-similarity"
 MODEL_META_DATA = "model-metadata"
 REGRESSION_DIFFERENCE = "regression-difference"
+HESSIAN_STRUCTURE = "hessian-structure"
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
