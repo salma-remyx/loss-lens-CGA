@@ -10,6 +10,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from database.db_util import *
+from script_util.persistent_entropy import persistent_entropy_summary
 
 
 def update_mode_losslandscape(
@@ -343,6 +344,23 @@ def process_persistence_barcode(input_file: str) -> list:
     ]
 
 
+def persistence_barcode_summary(persistence_barcode: list) -> Dict[str, float]:
+    """Topological entropy summaries for a persistence barcode.
+
+    Thin adapter over :mod:`script_util.persistent_entropy` (PE and LWPE,
+    adapted from arXiv:2509.06694). Reads the finite (birth, death) pairs
+    from this module's barcode dict shape -- ``y0`` is the birth-axis
+    (Points:0) and ``y1`` is the death-axis (Points:1) -- keeping the
+    off-diagonal rows where a feature dies (``y1 > y0``).
+    """
+    pairs = [
+        (float(entry["y0"]), float(entry["y1"]))
+        for entry in persistence_barcode
+        if float(entry["y1"]) > float(entry["y0"])
+    ]
+    return persistent_entropy_summary(pairs)
+
+
 def update_mode_persistence_barcode(
     case_id: str, model_id: str, mode_id: str, persistence_barcode: list
 ):
@@ -354,6 +372,7 @@ def update_mode_persistence_barcode(
 
     query = {"caseId": case_id, "modelId": model_id, "modeId": mode_id}
     record = {"edges": persistence_barcode}
+    record.update(persistence_barcode_summary(persistence_barcode))
     addOrUpdateDocument(PERSISTENCE_BARCODE, query, record)
 
 
