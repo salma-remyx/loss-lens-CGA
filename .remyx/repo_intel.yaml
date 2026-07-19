@@ -1,6 +1,18 @@
 schema_version: 1
 fork: salma-remyx/loss-lens-CGA
-observed_landing_zones: []
+observed_landing_zones:
+- path: server/calculate/script_util/
+  shape_tags:
+  - unclassified
+  confirmed_by:
+  - arxiv: 2509.06694v2
+    mode: Mode 2 (adapted port)
+    call_site_specifics: '`update_mode_persistence_barcode` in `server/calculate/script_util/read_csv_to_db.py`
+      (line ~364), which is reached from the pre-existing `process_persistence_diagrams()`
+      ingestion driver in the same '
+    branch: barycentric-neural-networks-and-length-weighted-persistent-e
+    timestamp: '2026-07-19T04:53:55Z'
+  last_observed: '2026-07-19T04:53:55Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -9,4 +21,4 @@ rejected_shapes:
   - arxiv: 2504.17618v1
     timestamp: '2026-07-18T10:45:35Z'
 coordination_signals: []
-last_updated: '2026-07-18T10:45:35Z'
+last_updated: '2026-07-19T04:53:55Z'
