@@ -116,7 +116,27 @@ parser.add_argument(
     help="total points while sampling for hessian loss values calculation",
 )
 
+parser.add_argument(
+    "--tgsr",
+    default=False,
+    help="Apply TGSR target-guided selective reweighting to the source PINN "
+    "before computing the landscape (set to 'true' / 1 / yes to enable).",
+)
+parser.add_argument(
+    "--tgsr_decay",
+    type=float,
+    default=0.1,
+    help="Minimum soft-decay factor applied to low-scoring neurons (TGSR).",
+)
+
 args = parser.parse_args()
+
+
+def _flag(value):
+    return str(value).strip().lower() in ("1", "true", "yes", "on")
+
+
+TGSR = _flag(args.tgsr)
 
 FLAG = False
 # CUDA support
@@ -240,6 +260,21 @@ model = func.get_pinn_model(
     args.lr,
 )
 model.dnn.eval()
+
+# Optional TGSR target-guided selective reweighting of the source PINN. Scores
+# neurons on the model's own collocation (target-evidence) batch and applies
+# selective soft decay to low-scoring neurons, producing a TGSR-rewritten model
+# whose loss landscape is then computed below for comparison with the baseline.
+tgsr_tag = ""
+if TGSR:
+    from target_guided_reweighting import apply_target_guided_reweighting
+
+    print("Applying TGSR target-guided selective reweighting (decay=%s)" % args.tgsr_decay)
+    apply_target_guided_reweighting(
+        model, model.x_f, model.t_f, decay=args.tgsr_decay
+    )
+    model.dnn.eval()
+    tgsr_tag = "_tgsr%s" % args.tgsr_decay
 
 # make sure the numbers of sampling points is less than the total number of points
 FULL_CUBE = False
@@ -382,7 +417,7 @@ for j in tqdm.tqdm(
 
 # save the loss values
 np.save(
-    f"../analyze_loss_cubes/loss_landscape_files_highdim/high_dim{args.dim}_random_pinn_pretrained_{args.system}_u0{args.u0_str}_nu{nu}_beta{beta}_rho{rho}_Nf{args.N_f}_{args.layers}_L{args.L}_lr{args.lr}_source{args.source}_seed{args.seed}_dim{DIM}_points{POINTS}.npy",
+    f"../analyze_loss_cubes/loss_landscape_files_highdim/high_dim{args.dim}_random_pinn_pretrained_{args.system}_u0{args.u0_str}_nu{nu}_rho{rho}_Nf{args.N_f}_{args.layers}_L{args.L}_lr{args.lr}_source{args.source}_seed{args.seed}{tgsr_tag}_dim{DIM}_points{POINTS}.npy",
     data_matrix,
 )
 # save the coordinates
