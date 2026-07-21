@@ -24,7 +24,14 @@ observed_landing_zones:
       \ after `model.dnn.eval()`)"
     branch: target-guided-selective-reweighting-for-physics-informed-neu
     timestamp: '2026-07-20T16:47:47Z'
-  last_observed: '2026-07-20T16:47:47Z'
+  - arxiv: 2607.07123v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: compute_merge_tree_planar in server/calculate/script_util/ttk_functions.py
+      (the descriptor is attached to its returned merge_tree dict), which is invoked
+      by the pre-existing data-generation pipeline s
+    branch: widest-path-reachability-fields-for-connectivity-preserving-
+    timestamp: '2026-07-21T14:03:02Z'
+  last_observed: '2026-07-21T14:03:02Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -33,4 +40,4 @@ rejected_shapes:
   - arxiv: 2504.17618v1
     timestamp: '2026-07-18T10:45:35Z'
 coordination_signals: []
-last_updated: '2026-07-20T16:47:47Z'
+last_updated: '2026-07-21T14:03:02Z'
