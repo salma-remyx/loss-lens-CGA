@@ -1563,7 +1563,62 @@ def compute_merge_tree_planar(
     # extract .csv and return merge_tree object
     merge_tree = process_merge_tree_planar(output_file_csv)
 
+    # Widest-path reachability descriptor (adapted from WPRF, arXiv:2607.07123):
+    # a connectivity-bottleneck topology descriptor on the planar loss-landscape
+    # field, complementary to the merge tree above.
+    _reachability = compute_widest_path_reachability(
+        loss_landscape=loss_landscape,
+        loss_values=loss_values,
+        loss_steps_dim1=loss_steps_dim1,
+        loss_steps_dim2=loss_steps_dim2,
+    )
+    if isinstance(merge_tree, dict) and _reachability is not None:
+        merge_tree["widestPathReachability"] = _reachability
+
     return merge_tree
+
+
+def compute_widest_path_reachability(
+    loss_landscape=None,
+    loss_values=None,
+    loss_steps_dim1=None,
+    loss_steps_dim2=None,
+    maximize=False,
+    fraction=0.1,
+):
+    """Widest-path (Max-Min) reachability descriptor for a planar loss landscape.
+
+    Adapted from WPRF (arXiv:2607.07123); see ``widest_path_reachability.py`` for
+    the mechanism. This is a companion to ``compute_merge_tree_planar``: the same
+    2-D loss-landscape field, summarised by its widest-path reachability and
+    connectivity bottlenecks instead of its merge tree. ``maximize`` defaults to
+    ``False`` (loss-landscape polarity, where low reachability flags inter-basin
+    barriers). Returns ``None`` when no usable 2-D grid can be recovered.
+    """
+    import sys as _sys
+
+    _here = os.path.dirname(os.path.abspath(__file__))
+    if _here not in _sys.path:
+        _sys.path.append(_here)
+    from widest_path_reachability import widest_path_reachability_descriptor
+
+    arr = loss_landscape if loss_landscape is not None else loss_values
+    if arr is None:
+        return None
+    arr_np = np.asarray(arr, dtype=float)
+    if arr_np.ndim == 2:
+        shape = arr_np.shape
+    elif loss_steps_dim1 and loss_steps_dim2:
+        shape = (int(loss_steps_dim1), int(loss_steps_dim2))
+        arr_np = arr_np.reshape(-1)
+    else:
+        arr_np = arr_np.reshape(-1)
+        side = int(round(arr_np.size ** 0.5))
+        shape = (side, side)
+    if shape[0] < 2 or shape[1] < 2 or shape[0] * shape[1] != arr_np.size:
+        return None
+    field = arr_np.reshape(shape).tolist()
+    return widest_path_reachability_descriptor(field, maximize=maximize, fraction=fraction)
 
 
 def load_pinn_model(file_path, verbose=0):
