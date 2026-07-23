@@ -31,7 +31,12 @@ observed_landing_zones:
       by the pre-existing data-generation pipeline s
     branch: widest-path-reachability-fields-for-connectivity-preserving-
     timestamp: '2026-07-21T14:03:02Z'
-  last_observed: '2026-07-21T14:03:02Z'
+  - arxiv: 2504.17618v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: (none)
+    branch: the-effects-of-hessian-eigenvalue-spectral-density-type-on-t
+    timestamp: '2026-07-23T22:21:07Z'
+  last_observed: '2026-07-23T22:21:07Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -42,4 +47,4 @@ rejected_shapes:
   - arxiv: 2607.06151v1
     timestamp: '2026-07-23T04:06:55Z'
 coordination_signals: []
-last_updated: '2026-07-23T04:06:55Z'
+last_updated: '2026-07-23T22:21:07Z'
