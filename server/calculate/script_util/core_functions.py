@@ -26,6 +26,7 @@ from training_scripts.MLPSmall import MLPSmall
 from training_scripts.RESNET20 import resnet
 from script_util.torch_cka import cka as torch_cka
 from script_util.torch_cka import cka_pinn as torch_cka_pinn
+from script_util import hesd_generalization
 from training_scripts.MLPSmall import Flatten
 from pinn.pbc_examples.choose_optimizer import *
 from pinn.pbc_examples.net_pbc import *
@@ -397,7 +398,13 @@ def compute_mode_performance(model_id: str, mode_id: str) -> Dict[str, float]:
         return performance
 
 
-def compute_mode_hessian(model_id: str, mode_id: str) -> List[float]:
+def _mode_hessian_comp(model_id: str, mode_id: str):
+    """Build the Hessian computer for a model/mode.
+
+    Shared by the eigenvalue analysis (``compute_mode_hessian``) and the
+    eigenvalue-density analysis (``compute_mode_generalization``) so both read
+    curvature from the same point on the loss landscape.
+    """
     mode = load_mode(model_id, mode_id)
 
     criterion = torch.nn.CrossEntropyLoss()
@@ -447,10 +454,33 @@ def compute_mode_hessian(model_id: str, mode_id: str) -> List[float]:
             mode, criterion, data=(x, y), cuda=torch.cuda.is_available()
         )
 
+    return hessian_comp
+
+
+def compute_mode_hessian(model_id: str, mode_id: str) -> List[float]:
+    hessian_comp = _mode_hessian_comp(model_id, mode_id)
+
     top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=10)
     top_eigenvalues.sort(reverse=True)
 
     return top_eigenvalues
+
+
+def compute_mode_generalization(
+    model_id: str, mode_id: str
+) -> Dict[str, object]:
+    """HESD-type-aware generalization assessment (arXiv:2504.17618).
+
+    Reuses the same Hessian computer as ``compute_mode_hessian`` but estimates
+    the full eigenvalue spectral density (HESD) via stochastic Lanczos
+    (``hessian.density``) and derives a generalization criterion plus an
+    applicability verdict from it. See ``hesd_generalization`` for the signal.
+    """
+    hessian_comp = _mode_hessian_comp(model_id, mode_id)
+
+    eigen_list_full, weight_list_full = hessian_comp.density()
+
+    return hesd_generalization.assess_density(eigen_list_full, weight_list_full)
 
 
 def update_mode_losslandscape(case_id: str, model_id: str, mode_id: str) -> None:

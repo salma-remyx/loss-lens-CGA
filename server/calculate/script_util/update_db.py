@@ -88,6 +88,49 @@ def update_mode_hessian(case_id: str, model_id: str, mode_id: str):
     addOrUpdateDocument(SEMI_GLOBAL_LOCAL_STRUCTURE, query, record)
 
 
+def update_mode_generalization(case_id: str, model_id: str, mode_id: str):
+    generalization = compute_mode_generalization(model_id, mode_id)
+
+    if not dbExists():
+        createDB()
+
+    if not collectionExists(SEMI_GLOBAL_LOCAL_STRUCTURE):
+        createCollection(SEMI_GLOBAL_LOCAL_STRUCTURE)
+
+    query = {
+        "caseId": case_id,
+    }
+
+    record = getDocument(SEMI_GLOBAL_LOCAL_STRUCTURE, query)
+    if record is None:
+        record = {
+            "caseId": case_id,
+        }
+    if "nodes" not in record.keys():
+        record["nodes"] = []
+
+    nodes = record["nodes"]
+    search_index = -1
+    for node in nodes:
+        if node["modelId"] == model_id and node["modeId"] == mode_id:
+            search_index = nodes.index(node)
+            break
+
+    if search_index == -1:
+        node = {
+            "modelId": model_id,
+            "modeId": mode_id,
+            "generalizationCriterion": generalization,
+        }
+        nodes.append(node)
+    else:
+        nodes[search_index]["generalizationCriterion"] = generalization
+
+    record["nodes"] = nodes
+
+    addOrUpdateDocument(SEMI_GLOBAL_LOCAL_STRUCTURE, query, record)
+
+
 def update_mode_losslandscape(case_id: str, model_id: str, mode_id: str):
     losslandscape, max_value, min_value = compute_mode_losslandscape(model_id, mode_id)
 
