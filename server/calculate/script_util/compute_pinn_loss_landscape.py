@@ -99,6 +99,28 @@ parser.add_argument(
     "--loss_style", default="mean", help="Loss for the network (MSE, vs. summing)."
 )
 
+parser.add_argument(
+    "--pi_spline",
+    action="store_true",
+    help=(
+        "Parametrize the field with a tensor-product B-spline (trainable control "
+        "coefficients) instead of the DNN, so the landscape is sampled over control "
+        "coefficients. Adapted from Physics-Informed Splines (PI-Splines)."
+    ),
+)
+parser.add_argument(
+    "--spline_degree",
+    type=int,
+    default=3,
+    help="B-spline degree per axis for the --pi_spline field.",
+)
+parser.add_argument(
+    "--spline_grid",
+    type=int,
+    default=16,
+    help="Number of control points per axis for the --pi_spline field.",
+)
+
 parser.add_argument("--visualize", default=False, help="Visualize the solution.")
 parser.add_argument(
     "--save_model", default=False, help="Save the model for analysis later."
@@ -240,6 +262,29 @@ model = func.get_pinn_model(
     args.lr,
 )
 model.dnn.eval()
+
+if args.pi_spline:
+    # Physics-Informed Splines: swap the DNN field parametrization for a
+    # tensor-product B-spline with trainable control coefficients. The downstream
+    # parameter-perturbation, Hessian, and residual-loss steps operate generically
+    # on model.parameters() (now the control coefficients), so they run unchanged.
+    from b_spline_field import BSplineField
+
+    field = BSplineField(
+        x_range=(0.0, 2.0 * np.pi),
+        t_range=(0.0, 1.0),
+        n_ctrl_per_axis=args.spline_grid,
+        degree=args.spline_degree,
+    ).to(device)
+    # Initialize control coefficients from the known exact solution so the sampled
+    # landscape is taken over a field that represents a real solution.
+    field.fit(X_star, u_star.flatten())
+    model.dnn = field
+    model.dnn.eval()
+    model.optimizer = choose_optimizer(
+        model.optimizer_name, model.dnn.parameters(), model.lr
+    )
+    print(f"PI-Spline field: {field.n_params()} trainable control coefficients")
 
 # make sure the numbers of sampling points is less than the total number of points
 FULL_CUBE = False
