@@ -36,7 +36,14 @@ observed_landing_zones:
     call_site_specifics: (none)
     branch: the-effects-of-hessian-eigenvalue-spectral-density-type-on-t
     timestamp: '2026-07-23T22:21:07Z'
-  last_observed: '2026-07-23T22:21:07Z'
+  - arxiv: 2607.15751v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: "compute_pinn_loss_landscape.py \u2014 the existing PINN\
+      \ loss-landscape pipeline script; the new --pi_spline branch runs after model.dnn.eval()\
+      \ (around line 266), swapping model.dnn for BSplineField before "
+    branch: trainable-spline-representations-for-physics-informed-learni
+    timestamp: '2026-07-24T16:25:54Z'
+  last_observed: '2026-07-24T16:25:54Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -47,4 +54,4 @@ rejected_shapes:
   - arxiv: 2607.06151v1
     timestamp: '2026-07-23T04:06:55Z'
 coordination_signals: []
-last_updated: '2026-07-23T22:21:07Z'
+last_updated: '2026-07-24T16:25:54Z'
