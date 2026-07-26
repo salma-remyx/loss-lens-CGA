@@ -48,7 +48,14 @@ observed_landing_zones:
     call_site_specifics: ''
     branch: gradient-concentration-not-weight-saliency-explains-represen
     timestamp: '2026-07-26T04:07:28Z'
-  last_observed: '2026-07-26T04:07:28Z'
+  - arxiv: 2607.12832v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: '`update_mode_persistence_barcode` in `server/calculate/script_util/read_csv_to_db.py`,
+      reached via the existing `process_persistence_diagrams()` ingestion driver (the
+      module''s `__main__` entry point) '
+    branch: contrast-free-ica-and-causal-inference-via-wasserstein-dista
+    timestamp: '2026-07-26T19:00:13Z'
+  last_observed: '2026-07-26T19:00:13Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -61,4 +68,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-07-26T04:07:28Z'
+last_updated: '2026-07-26T19:00:13Z'
