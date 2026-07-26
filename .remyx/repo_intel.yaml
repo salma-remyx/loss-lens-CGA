@@ -43,7 +43,12 @@ observed_landing_zones:
       \ (around line 266), swapping model.dnn for BSplineField before "
     branch: trainable-spline-representations-for-physics-informed-learni
     timestamp: '2026-07-24T16:25:54Z'
-  last_observed: '2026-07-24T16:25:54Z'
+  - arxiv: 2607.21353v1
+    mode: ''
+    call_site_specifics: ''
+    branch: gradient-concentration-not-weight-saliency-explains-represen
+    timestamp: '2026-07-26T04:07:28Z'
+  last_observed: '2026-07-26T04:07:28Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -56,4 +61,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-07-25T08:46:38Z'
+last_updated: '2026-07-26T04:07:28Z'
