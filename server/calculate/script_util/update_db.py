@@ -189,11 +189,12 @@ def add_mode_layer_similarity(case_id: str, model_id: str, mode_id: str):
         if record1 is not None or record2 is not None:
             continue
 
-        similarity = compute_layer_similarity(
+        similarity, concentration = compute_layer_similarity(
             model0_id=model_id,
             model1_id=node["modelId"],
             mode0_id=mode_id,
             mode1_id=node["modeId"],
+            with_concentration=True,
         )
         record1 = {
             "caseId": case_id,
@@ -201,6 +202,7 @@ def add_mode_layer_similarity(case_id: str, model_id: str, mode_id: str):
             "grid": similarity,
             "upperBound": max(max(row) for row in similarity),
             "lowerBound": min(min(row) for row in similarity),
+            "concentration": concentration,
         }
         record2 = {
             "caseId": case_id,
@@ -208,6 +210,7 @@ def add_mode_layer_similarity(case_id: str, model_id: str, mode_id: str):
             "grid": similarity,
             "upperBound": max(max(row) for row in similarity),
             "lowerBound": min(min(row) for row in similarity),
+            "concentration": concentration,
         }
 
         addOrUpdateDocument(LAYER_SIMILARITY, layer_similarity_query1, record1)

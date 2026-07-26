@@ -26,6 +26,7 @@ from training_scripts.MLPSmall import MLPSmall
 from training_scripts.RESNET20 import resnet
 from script_util.torch_cka import cka as torch_cka
 from script_util.torch_cka import cka_pinn as torch_cka_pinn
+from script_util import representation_concentration
 from training_scripts.MLPSmall import Flatten
 from pinn.pbc_examples.choose_optimizer import *
 from pinn.pbc_examples.net_pbc import *
@@ -768,8 +769,12 @@ def compute_cka_similarity(
 
 
 def compute_layer_similarity(
-    model0_id: str, model1_id: str, mode0_id: str, mode1_id: str
-) -> List[List[float]]:
+    model0_id: str,
+    model1_id: str,
+    mode0_id: str,
+    mode1_id: str,
+    with_concentration: bool = False,
+) -> Union[List[List[float]], Tuple[List[List[float]], Dict]]:
     mode0 = load_mode(model0_id, mode0_id)
     mode1 = load_mode(model1_id, mode1_id)
 
@@ -792,6 +797,24 @@ def compute_layer_similarity(
     layer_similarity = results["CKA"].tolist()
 
     # layer_similarity = [[random.random() for i in range(100)] for j in range(100)]
+
+    if with_concentration:
+        # Localize WHERE across depth the representation change concentrates
+        # (arXiv:2607.21353v1), derived from the CKA matrix this function
+        # already computes plus the engine's last-batch per-layer activations.
+        layer_names = results.get("model1_layers")
+        try:
+            prototype = representation_concentration.prototype_separation_by_layer(
+                cka.model1_features, cka.model2_features
+            )
+        except Exception:
+            # Prototype separation is a best-effort augmentation; never let it
+            # break the primary layer-similarity path.
+            prototype = None
+        summary = representation_concentration.concentration_summary(
+            layer_similarity, layer_names=layer_names, prototype_separation=prototype
+        )
+        return layer_similarity, summary
 
     return layer_similarity
 
