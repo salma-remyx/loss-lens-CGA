@@ -10,6 +10,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from database.db_util import *
+from script_util.wasserstein_shape import persistence_barcode_shape
 
 
 def update_mode_losslandscape(
@@ -354,6 +355,13 @@ def update_mode_persistence_barcode(
 
     query = {"caseId": case_id, "modelId": model_id, "modeId": mode_id}
     record = {"edges": persistence_barcode}
+
+    # distributional-shape descriptor: how non-Gaussian is the distribution of
+    # persistence-barcode critical-point values (squared 2-Wasserstein-to-Gaussian)?
+    barcode_shape = persistence_barcode_shape(persistence_barcode)
+    if barcode_shape is not None:
+        record["wassersteinShape"] = barcode_shape
+
     addOrUpdateDocument(PERSISTENCE_BARCODE, query, record)
 
 
