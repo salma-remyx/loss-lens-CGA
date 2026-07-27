@@ -55,7 +55,14 @@ observed_landing_zones:
       module''s `__main__` entry point) '
     branch: contrast-free-ica-and-causal-inference-via-wasserstein-dista
     timestamp: '2026-07-26T19:00:13Z'
-  last_observed: '2026-07-26T19:00:13Z'
+  - arxiv: 2607.21089v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: process_merge_trees() in server/calculate/script_util/read_csv_to_db.py
+      (the pre-existing ingestion driver), invoked from the module's __main__ block
+      at line 470; attach_basin_descriptors is called at
+    branch: loss-landscape-topology-reveals-why-simple-baselines-are-com
+    timestamp: '2026-07-27T14:41:01Z'
+  last_observed: '2026-07-27T14:41:01Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -68,4 +75,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-07-26T19:00:13Z'
+last_updated: '2026-07-27T14:41:01Z'
