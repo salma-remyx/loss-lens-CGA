@@ -10,6 +10,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from database.db_util import *
+from script_util import basin_topology
 
 
 def update_mode_losslandscape(
@@ -60,6 +61,25 @@ def update_mode_merge_tree(
 
     query = {"caseId": case_id, "modelId": model_id, "modeId": mode_id}
     addOrUpdateDocument(MERGE_TREE, query, merge_tree)
+
+
+def attach_basin_descriptors(
+    merge_tree: Dict[str, any], planar_csv_path: str
+) -> Dict[str, any]:
+    """Attach basin sharpness/volume descriptors to a parsed merge tree.
+
+    Sources the descriptors from the ``MergeTree.csv`` (and sibling
+    ``PersistenceDiagram.csv``) that the TTK pipeline emits next to the
+    ``...MergeTreePlanar.csv`` file the merge tree was parsed from. The
+    descriptors operationalize loss-landscape topology under class imbalance
+    (narrow solution basins vs flat plateaus); see ``basin_topology``.
+    """
+    merge_csv = planar_csv_path.replace("MergeTreePlanar.csv", "MergeTree.csv")
+    if os.path.exists(merge_csv):
+        merge_tree["basinDescriptors"] = basin_topology.descriptors_from_files(
+            merge_csv
+        )
+    return merge_tree
 
 
 def process_loss_landscapes():
@@ -268,6 +288,7 @@ def process_merge_trees():
                 "MergeTreePlanar.csv"
             ):
                 merge_tree = process_merge_trees_planar(file_path)
+                merge_tree = attach_basin_descriptors(merge_tree, file_path)
                 file_name_array = file_name.split("_")
                 seed = file_name_array[3]
                 aug = file_name_array[5]
@@ -282,6 +303,7 @@ def process_merge_trees():
                 and "distance_0.5" in file_name
             ):
                 merge_tree = process_merge_trees_planar(file_path)
+                merge_tree = attach_basin_descriptors(merge_tree, file_path)
                 file_name_array = file_name.split("_")
                 seed = file_name_array[7]
                 residual = file_name_array[5]
@@ -298,6 +320,7 @@ def process_merge_trees():
                 "MergeTreePlanar.csv"
             ):
                 merge_tree = process_merge_trees_planar(file_path)
+                merge_tree = attach_basin_descriptors(merge_tree, file_path)
                 file_name_array = file_name.split("_")
                 seed = file_name_array[10][4:]
                 beta = file_name_array[4]
@@ -313,6 +336,7 @@ def process_merge_trees():
                 "MergeTreePlanar.csv"
             ):
                 merge_tree = process_merge_trees_planar(file_path)
+                merge_tree = attach_basin_descriptors(merge_tree, file_path)
                 file_name_array = file_name.split("_")
                 seed = file_name_array[4]
                 beta = file_name_array[3]

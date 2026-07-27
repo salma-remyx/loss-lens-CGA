@@ -80,3 +80,7 @@ please see [adding case study](server/calculate/README.md)
 We are welcoming contributions from our collaborators. We strongly encourage contributors to work in their own forks of this project. You can edit the code on your own branch after you create your own forks. When you are ready to contribute, you can click the `Compare & pull` request button next to your own branch under your repository.
 
 This project highly recommand committers to sign their code using the [Developer Certificate of Origin (DCO)](https://developercertificate.org/) for each git commit but this is not required.
+
+## Basin topology analysis
+
+`server/calculate/script_util/basin_topology.py` derives basin depth (persistence), volume (region size), width (region span), and a sharpness/concentration summary from the merge trees and persistence diagrams the TTK pipeline already emits. It reports a landscape-level narrow-basin vs. flat-plateau regime score that can be correlated with a dataset's class-imbalance ratio. The descriptors are attached to each model's merge-tree record during ingestion (see `attach_basin_descriptors` in `read_csv_to_db.py`).
