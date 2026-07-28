@@ -195,19 +195,22 @@ def add_mode_layer_similarity(case_id: str, model_id: str, mode_id: str):
             mode0_id=mode_id,
             mode1_id=node["modeId"],
         )
+        grid = similarity["grid"]
         record1 = {
             "caseId": case_id,
             "modePairId": mode_pair_id1,
-            "grid": similarity,
-            "upperBound": max(max(row) for row in similarity),
-            "lowerBound": min(min(row) for row in similarity),
+            "grid": grid,
+            "upperBound": max(max(row) for row in grid),
+            "lowerBound": min(min(row) for row in grid),
+            "featureTopology": similarity["featureTopology"],
         }
         record2 = {
             "caseId": case_id,
             "modePairId": mode_pair_id2,
-            "grid": similarity,
-            "upperBound": max(max(row) for row in similarity),
-            "lowerBound": min(min(row) for row in similarity),
+            "grid": grid,
+            "upperBound": max(max(row) for row in grid),
+            "lowerBound": min(min(row) for row in grid),
+            "featureTopology": similarity["featureTopology"],
         }
 
         addOrUpdateDocument(LAYER_SIMILARITY, layer_similarity_query1, record1)
@@ -242,12 +245,14 @@ def update_mode_layer_similarity(case_id: str, model_id: str, mode_id: str):
             mode0_id=mode_id,
             mode1_id=node["modeId"],
         )
+        grid = similarity["grid"]
         record = {
             "caseId": case_id,
             "modePairId": mode_pair_id,
-            "grid": similarity,
-            "upperBound": max(max(row) for row in similarity),
-            "lowerBound": min(min(row) for row in similarity),
+            "grid": grid,
+            "upperBound": max(max(row) for row in grid),
+            "lowerBound": min(min(row) for row in grid),
+            "featureTopology": similarity["featureTopology"],
         }
 
         addOrUpdateDocument(LAYER_SIMILARITY, layer_similarity_query1, record)

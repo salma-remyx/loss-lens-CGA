@@ -1,5 +1,5 @@
 import random
-from typing import Dict, List, Optional, Union, Tuple
+from typing import Any, Dict, List, Optional, Union, Tuple
 import sys
 import os
 import torch
@@ -26,6 +26,7 @@ from training_scripts.MLPSmall import MLPSmall
 from training_scripts.RESNET20 import resnet
 from script_util.torch_cka import cka as torch_cka
 from script_util.torch_cka import cka_pinn as torch_cka_pinn
+from script_util.feature_topology import layer_hopkins
 from training_scripts.MLPSmall import Flatten
 from pinn.pbc_examples.choose_optimizer import *
 from pinn.pbc_examples.net_pbc import *
@@ -767,9 +768,23 @@ def compute_cka_similarity(
     return cka_res
 
 
+def feature_topology_from_cka(cka) -> Dict[str, Dict[str, float]]:
+    """Per-layer feature-space topology (Hopkins statistic) for both models.
+
+    Reuses the per-layer activation matrices the CKA forward pass already
+    captured in ``cka.model1_features`` / ``cka.model2_features`` and returns,
+    for each model, a ``{layer_name: hopkins_statistic}`` mapping. Called by
+    ``compute_layer_similarity`` so the topology stores alongside the CKA grid.
+    """
+    return {
+        "model1": layer_hopkins(cka.model1_features),
+        "model2": layer_hopkins(cka.model2_features),
+    }
+
+
 def compute_layer_similarity(
     model0_id: str, model1_id: str, mode0_id: str, mode1_id: str
-) -> List[List[float]]:
+) -> Dict[str, Any]:
     mode0 = load_mode(model0_id, mode0_id)
     mode1 = load_mode(model1_id, mode1_id)
 
@@ -791,9 +806,14 @@ def compute_layer_similarity(
 
     layer_similarity = results["CKA"].tolist()
 
+    # Per-layer feature-space topology (Hopkins statistic), measured on the
+    # same activations the CKA pass above already extracted. Stored alongside
+    # the similarity grid as a representation-topology companion signal.
+    feature_topology = feature_topology_from_cka(cka)
+
     # layer_similarity = [[random.random() for i in range(100)] for j in range(100)]
 
-    return layer_similarity
+    return {"grid": layer_similarity, "featureTopology": feature_topology}
 
 
 def compute_mode_connectivity(model_id: str, mode0_id: str, mode1_id: str) -> float:
