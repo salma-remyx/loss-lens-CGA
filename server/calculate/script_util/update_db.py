@@ -51,6 +51,9 @@ def update_mode_performance(case_id: str, model_id: str, mode_id: str):
 
 def update_mode_hessian(case_id: str, model_id: str, mode_id: str):
     hessian = compute_mode_hessian(model_id, mode_id)
+    # Hutch++ Hessian trace (arXiv:2502.18808): scalar curvature summary with
+    # lower estimator variance than the Hutchinson trace in pyhessian.
+    hessian_trace = compute_mode_hessian_trace(model_id, mode_id)
 
     if not dbExists():
         createDB()
@@ -78,10 +81,16 @@ def update_mode_hessian(case_id: str, model_id: str, mode_id: str):
             break
 
     if search_index == -1:
-        node = {"modelId": model_id, "modeId": mode_id, "localMetric": hessian}
+        node = {
+            "modelId": model_id,
+            "modeId": mode_id,
+            "localMetric": hessian,
+            "localFlatnessTrace": hessian_trace,
+        }
         nodes.append(node)
     else:
         nodes[search_index]["localFlatness"] = hessian
+        nodes[search_index]["localFlatnessTrace"] = hessian_trace
 
     record["nodes"] = nodes
 

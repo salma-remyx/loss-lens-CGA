@@ -26,6 +26,7 @@ from training_scripts.MLPSmall import MLPSmall
 from training_scripts.RESNET20 import resnet
 from script_util.torch_cka import cka as torch_cka
 from script_util.torch_cka import cka_pinn as torch_cka_pinn
+from script_util.hutchpp_trace import hutchpp_trace
 from training_scripts.MLPSmall import Flatten
 from pinn.pbc_examples.choose_optimizer import *
 from pinn.pbc_examples.net_pbc import *
@@ -397,7 +398,9 @@ def compute_mode_performance(model_id: str, mode_id: str) -> Dict[str, float]:
         return performance
 
 
-def compute_mode_hessian(model_id: str, mode_id: str) -> List[float]:
+def _build_hessian_computer(model_id: str, mode_id: str):
+    """Construct the pyhessian HVP oracle (``hessian`` or ``hessian_pinn``)
+    for a stored mode."""
     mode = load_mode(model_id, mode_id)
 
     criterion = torch.nn.CrossEntropyLoss()
@@ -447,10 +450,50 @@ def compute_mode_hessian(model_id: str, mode_id: str) -> List[float]:
             mode, criterion, data=(x, y), cuda=torch.cuda.is_available()
         )
 
+    return hessian_comp
+
+
+def compute_mode_hessian(model_id: str, mode_id: str) -> List[float]:
+    hessian_comp = _build_hessian_computer(model_id, mode_id)
+
     top_eigenvalues, top_eigenvector = hessian_comp.eigenvalues(top_n=10)
     top_eigenvalues.sort(reverse=True)
 
     return top_eigenvalues
+
+
+def compute_mode_hessian_trace(
+    model_id: str, mode_id: str, n_lowrank: int = 8, n_probes: int = 8
+) -> float:
+    """Estimate the Hessian trace of a stored mode with the low-variance
+    Hutch++ estimator (adapted from arXiv:2502.18808), reusing the same
+    Hessian-vector-product oracle as ``compute_mode_hessian``. Hutch++
+    removes the dominant eigenspace deterministically before applying
+    Hutchinson probing to the residual, which sharply reduces estimator
+    variance for the ill-conditioned, fast-decaying spectra typical of
+    neural-network loss Hessians (pyhessian's ``trace()`` is plain
+    Hutchinson).
+    """
+    hessian_comp = _build_hessian_computer(model_id, mode_id)
+
+    def hvp(v):
+        if hessian_comp.full_dataset:
+            _, hv = hessian_comp.dataloader_hv_product(v)
+        else:
+            hessian_comp.model.zero_grad()
+            hv = torch.autograd.grad(
+                hessian_comp.gradsH,
+                hessian_comp.params,
+                grad_outputs=v,
+                only_inputs=True,
+                retain_graph=True,
+            )
+        return hv
+
+    estimate = hutchpp_trace(
+        hvp, hessian_comp.params, n_lowrank=n_lowrank, n_probes=n_probes
+    )
+    return estimate.trace
 
 
 def update_mode_losslandscape(case_id: str, model_id: str, mode_id: str) -> None:
