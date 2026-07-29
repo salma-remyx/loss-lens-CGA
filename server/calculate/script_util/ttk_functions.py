@@ -22,6 +22,8 @@ from pynndescent import NNDescent
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import MinMaxScaler
 
+from script_util.spectral_persistence import effective_resistance_graph
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
@@ -437,6 +439,16 @@ def loss_landscape_to_vtu(
         A, G = compute_gabriel(loss_coords=loss_coords, return_graph=True, verbose=0)
     elif graph_kwargs == "delaunay":
         A, G = compute_delaunay(loss_coords=loss_coords, return_graph=True, verbose=0)
+    elif graph_kwargs == "spectral":
+        # spectral-distance (effective-resistance) neighbourhood graph;
+        # see spectral_persistence (adapted from arXiv:2311.03087v3)
+        A, G = effective_resistance_graph(
+            loss_coords=loss_coords,
+            n_neighbors=n_neighbors,
+            metric="euclidean",
+            return_graph=True,
+            verbose=0,
+        )
     else:
         print(f"Graph type {graph_kwargs} not recognized, using aknn")
         A, G = compute_aknn(
