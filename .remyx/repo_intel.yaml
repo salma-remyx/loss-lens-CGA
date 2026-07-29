@@ -69,7 +69,14 @@ observed_landing_zones:
       \ inside it, which is reached via the pre-existing add_m"
     branch: feature-space-topology-control-via-hopkins-loss
     timestamp: '2026-07-28T08:57:06Z'
-  last_observed: '2026-07-28T08:57:06Z'
+  - arxiv: 2311.03087v3
+    mode: Mode 2 (adapted port)
+    call_site_specifics: "ttk_functions.loss_landscape_to_vtu \u2014 the new 'spectral'\
+      \ graph_kwargs branch (module imported at ttk_functions.py:25, invoked at the\
+      \ :442 branch); reached via the pre-existing pipeline turn_landscape_"
+    branch: persistent-homology-for-high-dimensional-data-based-on-spect
+    timestamp: '2026-07-29T00:26:04Z'
+  last_observed: '2026-07-29T00:26:04Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -82,4 +89,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-07-28T08:57:06Z'
+last_updated: '2026-07-29T00:26:04Z'
