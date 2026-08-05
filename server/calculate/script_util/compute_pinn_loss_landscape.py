@@ -105,6 +105,25 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--piks",
+    action="store_true",
+    help="Solve the closed-form PIKS kernel baseline (linear PDEs only) "
+    "instead of computing the PINN loss landscape.",
+)
+parser.add_argument(
+    "--piks_sigma",
+    type=float,
+    default=1.0,
+    help="Gaussian kernel bandwidth for the PIKS baseline.",
+)
+parser.add_argument(
+    "--piks_ridge",
+    type=float,
+    default=1e-6,
+    help="Tikhonov ridge for the PIKS block linear system.",
+)
+
+parser.add_argument(
     "--dim", default=3, help="dimension for hessian loss values calculation"
 )
 parser.add_argument(
@@ -214,6 +233,29 @@ u_train = uu1  # just the initial condition
 X_u_train = xx1  # (x,t) for initial condition
 
 layers.insert(0, X_u_train.shape[-1])
+
+###############################################################################
+# Optional: closed-form PIKS kernel baseline (linear PDEs only)
+###############################################################################
+if args.piks:
+    from piks_solver import run_piks_baseline
+
+    run_piks_baseline(
+        args,
+        X_star,
+        u_star,
+        X_f_train,
+        G,
+        xx1,
+        uu1,
+        bc_lb,
+        bc_ub,
+        uu2,
+        nu,
+        beta,
+        rho,
+    )
+    sys.exit(0)
 
 ###############################################################################
 # Load the model
