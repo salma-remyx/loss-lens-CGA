@@ -76,7 +76,14 @@ observed_landing_zones:
       \ :442 branch); reached via the pre-existing pipeline turn_landscape_"
     branch: persistent-homology-for-high-dimensional-data-based-on-spect
     timestamp: '2026-07-29T00:26:04Z'
-  last_observed: '2026-07-29T00:26:04Z'
+  - arxiv: 2607.27062v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: "compute_pinn_loss_landscape.py, the new `--piks` branch\
+      \ \u2014 an existing PINN loss-landscape CLI pipeline entry point; the solver\
+      \ is reached by running that script with --piks."
+    branch: piks-universal-physics-informed-kernel-methods
+    timestamp: '2026-08-05T18:27:01Z'
+  last_observed: '2026-08-05T18:27:01Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -89,4 +96,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-07-29T00:26:04Z'
+last_updated: '2026-08-05T18:27:01Z'
