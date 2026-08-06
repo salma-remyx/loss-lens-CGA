@@ -26,6 +26,7 @@ from training_scripts.MLPSmall import MLPSmall
 from training_scripts.RESNET20 import resnet
 from script_util.torch_cka import cka as torch_cka
 from script_util.torch_cka import cka_pinn as torch_cka_pinn
+from script_util import condition_number_metric
 from training_scripts.MLPSmall import Flatten
 from pinn.pbc_examples.choose_optimizer import *
 from pinn.pbc_examples.net_pbc import *
@@ -451,6 +452,30 @@ def compute_mode_hessian(model_id: str, mode_id: str) -> List[float]:
     top_eigenvalues.sort(reverse=True)
 
     return top_eigenvalues
+
+
+def compute_mode_condition_number(model_id: str, mode_id: str) -> Dict:
+    """Per-layer weight-matrix condition numbers + kappa-LoRA top-half selection.
+
+    Exposes the condition-number -> adaptation-importance signal
+    (arXiv:2607.22489) as an inspectable metric alongside the Hessian
+    eigenvalues. See ``condition_number_metric`` for the spectral computation
+    and the selection rule.
+    """
+    mode = load_mode(model_id, mode_id)
+    # PINN checkpoints load as a wrapper exposing the network as ``.dnn``.
+    target = getattr(mode, "dnn", mode)
+    named_weights = []
+    for name, param in target.named_parameters():
+        if not name.endswith("weight"):
+            continue
+        weight = param.detach().cpu().numpy()
+        if weight.ndim < 2:
+            continue
+        if weight.ndim > 2:
+            weight = weight.reshape(weight.shape[0], -1)
+        named_weights.append((name, weight))
+    return condition_number_metric.analyze(named_weights)
 
 
 def update_mode_losslandscape(case_id: str, model_id: str, mode_id: str) -> None:

@@ -53,6 +53,10 @@ def process_modes(modes_list: List[Dict[str, str]], compute: str) -> None:
                 pbar.set_postfix(Status=f"{model_id}-{mode_id}: hessian")
                 update_mode_hessian(case_id, model_id, mode_id)
 
+            if compute == "all" or compute == "condition_number":
+                pbar.set_postfix(Status=f"{model_id}-{mode_id}: condition number")
+                update_mode_condition_number(case_id, model_id, mode_id)
+
             if compute == "all" or compute == "losslandscape":
                 pbar.set_postfix(Status=f"{model_id}-{mode_id}: loss landscape")
                 update_mode_losslandscape(case_id, model_id, mode_id)
