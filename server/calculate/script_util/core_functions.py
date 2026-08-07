@@ -26,6 +26,7 @@ from training_scripts.MLPSmall import MLPSmall
 from training_scripts.RESNET20 import resnet
 from script_util.torch_cka import cka as torch_cka
 from script_util.torch_cka import cka_pinn as torch_cka_pinn
+from script_util.kfac_curvature import kfac_fisher_spectrum
 from training_scripts.MLPSmall import Flatten
 from pinn.pbc_examples.choose_optimizer import *
 from pinn.pbc_examples.net_pbc import *
@@ -451,6 +452,50 @@ def compute_mode_hessian(model_id: str, mode_id: str) -> List[float]:
     top_eigenvalues.sort(reverse=True)
 
     return top_eigenvalues
+
+
+def compute_mode_kfac_curvature(model_id: str, mode_id: str) -> List[float]:
+    """Kronecker-factored Fisher curvature eigenvalue spectrum for a model.
+
+    Sibling curvature metric to ``compute_mode_hessian``: instead of the Hessian
+    eigenvalue spectrum it returns the K-FAC Fisher eigenvalue spectrum, the
+    standard complementary curvature object (arxiv:2311.00636). Reuses the same
+    ``load_mode``/``load_data`` -> eigenvalues contract as the Hessian pipeline.
+    """
+    mode = load_mode(model_id, mode_id)
+
+    if (
+        model_id == "pinn_convection_beta1"
+        or model_id == "pinn_convection_beta50"
+        or model_id == "PINN_convection_beta_1.0"
+        or model_id == "PINN_convection_beta_50.0"
+    ):
+        # PINN curvature objective: the PDE residual over the collocation grid,
+        # which flows gradients through mode.dnn's linear layers.
+        x = np.linspace(0, 2 * np.pi, 256, endpoint=False).reshape(-1, 1)
+        t = np.linspace(0, 1, 100).reshape(-1, 1)
+        X, T = np.meshgrid(x, t)
+        x_tensor = torch.tensor(X[:, 0:1], requires_grad=True).float().to(DEVICE)
+        t_tensor = torch.tensor(X[:, 1:2], requires_grad=True).float().to(DEVICE)
+
+        network = mode.dnn
+
+        def loss_fn(_model: nn.Module) -> torch.Tensor:
+            residual = mode.net_f(x_tensor, t_tensor)
+            return torch.mean(residual ** 2)
+
+    else:
+        data = load_data(model_id, train=True)
+        x_batch, y_batch = next(iter(data))
+        x_batch = x_batch.to(DEVICE)
+        y_batch = y_batch.to(DEVICE)
+        network = mode.module if isinstance(mode, nn.DataParallel) else mode
+        criterion = torch.nn.CrossEntropyLoss()
+
+        def loss_fn(model: nn.Module) -> torch.Tensor:
+            return criterion(model(x_batch), y_batch)
+
+    return kfac_fisher_spectrum(network, loss_fn)
 
 
 def update_mode_losslandscape(case_id: str, model_id: str, mode_id: str) -> None:

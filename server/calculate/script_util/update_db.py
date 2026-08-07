@@ -88,6 +88,45 @@ def update_mode_hessian(case_id: str, model_id: str, mode_id: str):
     addOrUpdateDocument(SEMI_GLOBAL_LOCAL_STRUCTURE, query, record)
 
 
+def update_mode_kfac(case_id: str, model_id: str, mode_id: str):
+    kfac_curvature = compute_mode_kfac_curvature(model_id, mode_id)
+
+    if not dbExists():
+        createDB()
+
+    if not collectionExists(SEMI_GLOBAL_LOCAL_STRUCTURE):
+        createCollection(SEMI_GLOBAL_LOCAL_STRUCTURE)
+
+    query = {
+        "caseId": case_id,
+    }
+
+    record = getDocument(SEMI_GLOBAL_LOCAL_STRUCTURE, query)
+    if record is None:
+        record = {
+            "caseId": case_id,
+        }
+    if "nodes" not in record.keys():
+        record["nodes"] = []
+
+    nodes = record["nodes"]
+    search_index = -1
+    for node in nodes:
+        if node["modelId"] == model_id and node["modeId"] == mode_id:
+            search_index = nodes.index(node)
+            break
+
+    if search_index == -1:
+        node = {"modelId": model_id, "modeId": mode_id, "localFisher": kfac_curvature}
+        nodes.append(node)
+    else:
+        nodes[search_index]["localFisher"] = kfac_curvature
+
+    record["nodes"] = nodes
+
+    addOrUpdateDocument(SEMI_GLOBAL_LOCAL_STRUCTURE, query, record)
+
+
 def update_mode_losslandscape(case_id: str, model_id: str, mode_id: str):
     losslandscape, max_value, min_value = compute_mode_losslandscape(model_id, mode_id)
 

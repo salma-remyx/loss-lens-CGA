@@ -53,6 +53,10 @@ def process_modes(modes_list: List[Dict[str, str]], compute: str) -> None:
                 pbar.set_postfix(Status=f"{model_id}-{mode_id}: hessian")
                 update_mode_hessian(case_id, model_id, mode_id)
 
+            if compute == "all" or compute == "kfac":
+                pbar.set_postfix(Status=f"{model_id}-{mode_id}: kfac curvature")
+                update_mode_kfac(case_id, model_id, mode_id)
+
             if compute == "all" or compute == "losslandscape":
                 pbar.set_postfix(Status=f"{model_id}-{mode_id}: loss landscape")
                 update_mode_losslandscape(case_id, model_id, mode_id)
