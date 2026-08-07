@@ -395,7 +395,10 @@ def update_mode_cka_similarity(case_id: str, model_id: str, mode_id: str):
             "mode1Id": node["modeId"],
         }
         record = {
-            "ckaSimilarity": cka_similarity,
+            "ckaSimilarity": cka_similarity["cka"],
+            "semanticSimilarity": cka_similarity["semantic"],
+            "spatioSemanticSimilarity": cka_similarity["spatio_semantic"],
+            "spatialAlignmentGap": cka_similarity["spatial_alignment"],
         }
 
         addOrUpdateDocument(CKA_SIMILARITY, cka_similarity_query, record)

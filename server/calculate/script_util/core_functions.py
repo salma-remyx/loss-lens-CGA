@@ -26,6 +26,7 @@ from training_scripts.MLPSmall import MLPSmall
 from training_scripts.RESNET20 import resnet
 from script_util.torch_cka import cka as torch_cka
 from script_util.torch_cka import cka_pinn as torch_cka_pinn
+from script_util.semantic_similarity import decoupled_similarity
 from training_scripts.MLPSmall import Flatten
 from pinn.pbc_examples.choose_optimizer import *
 from pinn.pbc_examples.net_pbc import *
@@ -764,7 +765,17 @@ def compute_cka_similarity(
     cka_res = np_cka.linear_CKA(flatten_mode0, flatten_mode1)
     # print(cka_res)
 
-    return cka_res
+    # Decouple semantic similarity from spatial alignment (arXiv:2410.23107).
+    # ``cka_res`` is the spatial-alignment-sensitive (spatio-semantic) RSM
+    # comparison; the permutation-invariant ``semantic`` score isolates the
+    # relational structure independent of how the feature axes line up.
+    decoupled = decoupled_similarity(flatten_mode0, flatten_mode1)
+    return {
+        "cka": float(cka_res),
+        "semantic": decoupled["semantic"],
+        "spatio_semantic": decoupled["spatio_semantic"],
+        "spatial_alignment": decoupled["spatial_alignment"],
+    }
 
 
 def compute_layer_similarity(
