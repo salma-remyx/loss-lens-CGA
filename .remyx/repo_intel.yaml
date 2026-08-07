@@ -90,7 +90,14 @@ observed_landing_zones:
       the same dispatch loop and update_db.import-* wiring used '
     branch: k-appa--lora-condition-numbers-reveal-which-lora-matrices-wo
     timestamp: '2026-08-06T10:31:22Z'
-  last_observed: '2026-08-06T10:31:22Z'
+  - arxiv: 2311.00636v2
+    mode: Mode 2 (adapted port)
+    call_site_specifics: server/calculate/data_generation_scripts/case_study_pinn_100.py
+      -> process_modes dispatches update_mode_kfac when --compute is 'kfac' or 'all'
+      (update_mode_kfac -> compute_mode_kfac_curvature -> kfac_
+    branch: kronecker-factored-approximate-curvature-for-modern-neural-n
+    timestamp: '2026-08-07T03:24:36Z'
+  last_observed: '2026-08-07T03:24:36Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -103,4 +110,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-08-06T10:31:22Z'
+last_updated: '2026-08-07T03:24:36Z'
