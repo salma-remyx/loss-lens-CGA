@@ -97,7 +97,14 @@ observed_landing_zones:
       (update_mode_kfac -> compute_mode_kfac_curvature -> kfac_
     branch: kronecker-factored-approximate-curvature-for-modern-neural-n
     timestamp: '2026-08-07T03:24:36Z'
-  last_observed: '2026-08-07T03:24:36Z'
+  - arxiv: 2410.23107v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: compute_cka_similarity in server/calculate/script_util/core_functions.py
+      (the existing two-model similarity entry point), which is invoked by update_mode_cka_similarity
+      in update_db.py and reached via
+    branch: decoupling-semantic-similarity-from-spatial-alignment-for-ne
+    timestamp: '2026-08-07T20:52:07Z'
+  last_observed: '2026-08-07T20:52:07Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -110,4 +117,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-08-07T03:24:36Z'
+last_updated: '2026-08-07T20:52:07Z'
