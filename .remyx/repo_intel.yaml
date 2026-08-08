@@ -105,6 +105,18 @@ observed_landing_zones:
     branch: decoupling-semantic-similarity-from-spatial-alignment-for-ne
     timestamp: '2026-08-07T20:52:07Z'
   last_observed: '2026-08-07T20:52:07Z'
+- path: server/calculate/training_scripts/pinn/pbc_examples/
+  shape_tags:
+  - unclassified
+  confirmed_by:
+  - arxiv: 2608.05136v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: choose_optimizer in pinn/pbc_examples/choose_optimizer.py
+      -- the factory that net_pbc.py (PhysicsInformedNN_pbc) and the script_util analysis
+      pipeline (core_functions.py, add_regression_difference.py,
+    branch: the-loss-does-not-see-the-basis-but-adam-does
+    timestamp: '2026-08-08T13:55:17Z'
+  last_observed: '2026-08-08T13:55:17Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -117,4 +129,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-08-07T20:52:07Z'
+last_updated: '2026-08-08T13:55:17Z'
