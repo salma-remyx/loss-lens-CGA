@@ -4,6 +4,8 @@ import torch
 import torch_optimizer as optim
 import numpy as np
 
+from .flow_adam import FlowAdam as _FlowAdam
+
 def choose_optimizer(optimizer_name: str, *params):
     if optimizer_name == 'LBFGS':
         return LBFGS(*params)
@@ -19,6 +21,8 @@ def choose_optimizer(optimizer_name: str, *params):
         return Adam(*params)
     elif optimizer_name == 'SGD':
         return SGD(*params)
+    elif optimizer_name == 'FlowAdam':
+        return FlowAdam(*params)
 
 def LBFGS(model_param,
         lr=1.0,
@@ -66,6 +70,20 @@ def SGD(model_param, lr=1e-4, momentum=0.9, dampening=0, weight_decay=0, nestero
     )
 
     return optimizer
+
+def FlowAdam(model_param, lr=1e-3, betas=(0.9, 0.999), eps=1e-08, weight_decay=0):
+    """Gauge-equivariant ("shared-scalar") Adam.
+
+    Preconditioner is a single shared scalar per tensor (running mean of the
+    squared gradient), so the rule commutes with the gauge rotation
+    (U, V) -> (U Q, V Q) and keeps gradient flow's low-rank implicit bias that
+    coordinate-wise Adam loses. See flow_adam.py.
+    """
+    return _FlowAdam(model_param,
+                     lr=lr,
+                     betas=betas,
+                     eps=eps,
+                     weight_decay=weight_decay)
 
 def AdaHessian(model_param, lr=1.0, betas=(0.9, 0.999),
                 eps=1e-4, weight_decay=0.0, hessian_power=0.5):
