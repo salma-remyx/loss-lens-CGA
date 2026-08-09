@@ -1,6 +1,7 @@
 """Run PINNs for convection/reaction/reaction-diffusion with periodic boundary conditions."""
 
 import argparse
+import sys
 from net_pbc import *
 import numpy as np
 import os
@@ -40,6 +41,16 @@ parser.add_argument('--loss_style', default='mean', help='Loss for the network (
 parser.add_argument('--visualize', default=False, help='Visualize the solution.')
 parser.add_argument('--save_model', default=False, help='Save the model for analysis later.')
 
+# Continual learning over a parameter domain (CL-PINN, arXiv:2608.04778).
+parser.add_argument('--continual', action='store_true', default=False, help='Learn a parameter family sequentially on one shared model (CL-PINN) instead of a single scalar setting.')
+parser.add_argument('--param', type=str, default='', help='Coefficient to sweep (beta|rho|nu). Inferred from --system if empty.')
+parser.add_argument('--param_min', type=float, default=0.5, help='Lower bound of the parameter domain.')
+parser.add_argument('--param_max', type=float, default=2.0, help='Upper bound of the parameter domain.')
+parser.add_argument('--n_tasks', type=int, default=5, help='Number of parameter values (tasks) in the domain.')
+parser.add_argument('--steps_per_task', type=int, default=2000, help='Adam optimization steps per continual task.')
+parser.add_argument('--replay_size', type=int, default=200, help='Collocation points rehearsed from each prior task (sparse replay).')
+parser.add_argument('--active_selection', action='store_true', default=False, help='Pick the next task by worst-current-error (error-greedy active selection).')
+
 args = parser.parse_args()
 
 # CUDA support
@@ -65,6 +76,14 @@ elif args.system == 'reaction':
     beta = 0.0
 
 print('nu', nu, 'beta', beta, 'rho', rho)
+
+# Continual learning over a parameter domain: delegate to the CL-PINN module,
+# which reuses net_pbc.DNN + systems_pbc to train one shared parameter-conditioned
+# model across the domain with sparse physics-constrained replay.
+if args.continual:
+    from continual_param_pinn import run_continual
+    run_continual(args)
+    sys.exit(0)
 
 # parse the layers list here
 orig_layers = args.layers
