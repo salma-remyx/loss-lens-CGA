@@ -116,7 +116,14 @@ observed_landing_zones:
       pipeline (core_functions.py, add_regression_difference.py,
     branch: the-loss-does-not-see-the-basis-but-adam-does
     timestamp: '2026-08-08T13:55:17Z'
-  last_observed: '2026-08-08T13:55:17Z'
+  - arxiv: 2608.04778v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: 'main_pbc.py''s --continual branch: `from continual_param_pinn
+      import run_continual; run_continual(args)` (reached by running `python3 main_pbc.py
+      --continual ...`, the same entry point driven by run_ma'
+    branch: continual-learning-physics-informed-neural-networks-for-para
+    timestamp: '2026-08-09T07:35:34Z'
+  last_observed: '2026-08-09T07:35:34Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -129,4 +136,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-08-08T13:55:17Z'
+last_updated: '2026-08-09T07:35:34Z'
