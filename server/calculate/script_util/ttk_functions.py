@@ -344,6 +344,7 @@ def loss_landscape_to_vtu(
     output_path: str = "",
     graph_kwargs="aknn",
     n_neighbors=None,
+    gap_index: bool = False,
 ) -> str:
     """
 
@@ -504,6 +505,26 @@ def loss_landscape_to_vtu(
     # from sklearn.preprocessing import MinMaxScaler
     # embedding = MinMaxScaler((0, loss_steps)).fit_transform(embedding)
 
+    # Gap Index (optional): score how faithfully the 2D projection's empty
+    # regions reflect the high-dimensional structure. Flags when DR distortion
+    # would corrupt the downstream merge-tree / persistence analysis.
+    # Adapted from arXiv:2607.28324 (the Gap Index).
+    gi_result = None
+    if gap_index:
+        try:
+            from script_util.gap_index import compute_gap_index
+        except ImportError:
+            from gap_index import compute_gap_index
+
+        proj_2d = np.asarray(embedding)[:, :2]
+        if proj_2d.shape[1] == 2:
+            gi_result = compute_gap_index(loss_coords, proj_2d)
+            print(
+                f"... Gap Index (empty-region distortion) = "
+                f"{gi_result['gap_index']:.4f} over "
+                f"{gi_result['n_triangles']} triangles"
+            )
+
     # combine first two PCs with scaled loss
     embedding = np.c_[embedding[:, :2], loss_values_scaled]
 
@@ -529,6 +550,8 @@ def loss_landscape_to_vtu(
     # configure filename
     output_file = output_path + ".vtu"
 
+    if gap_index:
+        return output_file, gi_result
     return output_file
 
 
