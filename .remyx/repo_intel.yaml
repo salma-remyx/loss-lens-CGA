@@ -104,7 +104,14 @@ observed_landing_zones:
       in update_db.py and reached via
     branch: decoupling-semantic-similarity-from-spatial-alignment-for-ne
     timestamp: '2026-08-07T20:52:07Z'
-  last_observed: '2026-08-07T20:52:07Z'
+  - arxiv: 2607.28324v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: 'server/calculate/script_util/ttk_functions.py :: loss_landscape_to_vtu
+      (opt-in via gap_index=True); that function is reached in the pipeline as compute_merge_tree
+      / compute_persistence_barcode -> loss'
+    branch: measuring-distortion-in-the-empty-regions-of-dimensionality-
+    timestamp: '2026-08-10T00:11:00Z'
+  last_observed: '2026-08-10T00:11:00Z'
 - path: server/calculate/training_scripts/pinn/pbc_examples/
   shape_tags:
   - unclassified
@@ -136,4 +143,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-08-09T07:35:34Z'
+last_updated: '2026-08-10T00:11:00Z'
