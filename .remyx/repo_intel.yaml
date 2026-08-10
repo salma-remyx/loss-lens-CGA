@@ -130,7 +130,14 @@ observed_landing_zones:
       --continual ...`, the same entry point driven by run_ma'
     branch: continual-learning-physics-informed-neural-networks-for-para
     timestamp: '2026-08-09T07:35:34Z'
-  last_observed: '2026-08-09T07:35:34Z'
+  - arxiv: 2410.10373v2
+    mode: Mode 1 (direct port)
+    call_site_specifics: choose_optimizer.choose_optimizer (the pre-existing optimizer
+      factory in choose_optimizer.py), which is invoked by PhysicsInformedNN_pbc.__init__
+      at net_pbc.py:100; the new 'SAM' and 'LateSAM' branche
+    branch: sharpness-aware-minimization-efficiently-selects-flatter-min
+    timestamp: '2026-08-10T18:42:29Z'
+  last_observed: '2026-08-10T18:42:29Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -143,4 +150,4 @@ rejected_shapes:
   - arxiv: 2607.07623v1
     timestamp: '2026-07-25T08:46:38Z'
 coordination_signals: []
-last_updated: '2026-08-10T00:11:00Z'
+last_updated: '2026-08-10T18:42:29Z'
