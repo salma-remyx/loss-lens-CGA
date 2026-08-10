@@ -4,6 +4,8 @@ import torch
 import torch_optimizer as optim
 import numpy as np
 
+from sharpness_aware_optimizer import SAMOptimizer, LatePhaseSAM
+
 def choose_optimizer(optimizer_name: str, *params):
     if optimizer_name == 'LBFGS':
         return LBFGS(*params)
@@ -19,6 +21,10 @@ def choose_optimizer(optimizer_name: str, *params):
         return Adam(*params)
     elif optimizer_name == 'SGD':
         return SGD(*params)
+    elif optimizer_name == 'SAM':
+        return SAM(*params)
+    elif optimizer_name == 'LateSAM':
+        return LateSAM(*params)
 
 def LBFGS(model_param,
         lr=1.0,
@@ -148,3 +154,21 @@ def Apollo(model_param, lr=1e-2, beta=0.9, eps=1e-4, warmup=5, init_lr=0.01, wei
                             init_lr=init_lr,
                             weight_decay=weight_decay)
     return optimizer
+
+def SAM(model_param, lr=1e-4, rho=None, momentum=0.9):
+    """Sharpness-Aware Minimization (Foret et al. 2021) over an SGD base.
+
+    Seeks flat minima by perturbing weights to the worst neighbour within a
+    radius-rho ball before each descent step. ``rho`` resolves to PINN_SAM_RHO
+    (default 0.05) when left as None.
+    """
+    return SAMOptimizer(model_param, torch.optim.SGD, rho=rho, lr=lr, momentum=momentum)
+
+def LateSAM(model_param, lr=1e-4, rho=None, momentum=0.9):
+    """SGD that switches to SAM for the final training phase.
+
+    Delivers the late-phase flat-minima selection of Andriushchenko et al.
+    (2024): run the plain SGD base for most of training, then SAM for the last
+    PINN_SAM_LATE_ITERS of PINN_SAM_TOTAL_ITERS steps (defaults 200 of 2000).
+    """
+    return LatePhaseSAM(model_param, torch.optim.SGD, lr=lr, rho=rho, momentum=momentum)
