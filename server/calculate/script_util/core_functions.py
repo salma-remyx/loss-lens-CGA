@@ -26,6 +26,7 @@ from training_scripts.MLPSmall import MLPSmall
 from training_scripts.RESNET20 import resnet
 from script_util.torch_cka import cka as torch_cka
 from script_util.torch_cka import cka_pinn as torch_cka_pinn
+from script_util.topological_rsa import TopologicalRSA
 from training_scripts.MLPSmall import Flatten
 from pinn.pbc_examples.choose_optimizer import *
 from pinn.pbc_examples.net_pbc import *
@@ -768,8 +769,12 @@ def compute_cka_similarity(
 
 
 def compute_layer_similarity(
-    model0_id: str, model1_id: str, mode0_id: str, mode1_id: str
-) -> List[List[float]]:
+    model0_id: str,
+    model1_id: str,
+    mode0_id: str,
+    mode1_id: str,
+    topological: bool = False,
+) -> Union[List[List[float]], Dict[str, List[List[float]]]]:
     mode0 = load_mode(model0_id, mode0_id)
     mode1 = load_mode(model1_id, mode1_id)
 
@@ -792,6 +797,19 @@ def compute_layer_similarity(
     layer_similarity = results["CKA"].tolist()
 
     # layer_similarity = [[random.random() for i in range(100)] for j in range(100)]
+
+    if topological:
+        # tRSA augments the geometric CKA matrix with a topological transform
+        # of each layer's representational dissimilarity matrix (a merge-tree /
+        # 0-D persistent-homology ultrametric), reusing the same forward-hook
+        # feature extraction as the CKA path above.
+        trsa = TopologicalRSA(mode0, mode1, device=DEVICE)
+        trsa.compare(data)
+        trsa_results = trsa.export()
+        return {
+            "CKA": layer_similarity,
+            "tRSA": trsa_results["tRSA"].tolist(),
+        }
 
     return layer_similarity
 
