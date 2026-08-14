@@ -111,7 +111,14 @@ observed_landing_zones:
       / compute_persistence_barcode -> loss'
     branch: measuring-distortion-in-the-empty-regions-of-dimensionality-
     timestamp: '2026-08-10T00:11:00Z'
-  last_observed: '2026-08-10T00:11:00Z'
+  - arxiv: 2408.11948v1
+    mode: Mode 2 (adapted port)
+    call_site_specifics: "compute_layer_similarity (existing entry point, itself called\
+      \ by update_db.py) via the new topological=True branch \u2014 but no product\
+      \ caller passes the flag (update_db.py calls without it), so only the "
+    branch: topological-representational-similarity-analysis-in-brains-a
+    timestamp: '2026-08-14T00:44:25Z'
+  last_observed: '2026-08-14T00:44:25Z'
 - path: server/calculate/training_scripts/pinn/pbc_examples/
   shape_tags:
   - unclassified
@@ -152,4 +159,4 @@ rejected_shapes:
   - arxiv: 2608.06276v1
     timestamp: '2026-08-13T03:07:17Z'
 coordination_signals: []
-last_updated: '2026-08-13T03:07:17Z'
+last_updated: '2026-08-14T00:44:25Z'
