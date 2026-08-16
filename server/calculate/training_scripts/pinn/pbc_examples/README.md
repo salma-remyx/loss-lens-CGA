@@ -29,7 +29,7 @@ Possible arguments:
 --system            system of study (default: convection; also supports diffusion, reaction, rd)
 --seed              used to reproduce the results (default: 0)
 --N_f               number of points to sample from the interior domain (default: 1000)
---optimizer_name    optimizer to use, currently supports L-BFGS
+--optimizer_name    optimizer to use, currently supports L-BFGS, Adam, SGD, AdaHessian, Shampoo, Yogi, Apollo, and KronPSGD
 --lr                learning rate (default: 1.0)
 --L                 multiplier on the regularization parameter (default: 1.0)
 --xgrid             size of the xgrid (default: 256)

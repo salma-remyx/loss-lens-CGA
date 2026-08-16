@@ -6,7 +6,11 @@ from torch.nn import functional as F
 from collections import OrderedDict
 import numpy as np
 
-# from choose_optimizer import *
+# imported positionally-agnostic so this module works both when run in place
+# (main_pbc.py) and when imported as pinn.pbc_examples.net_pbc
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+from kron_preconditioner import KronPSGD
+from choose_optimizer import *
 
 # CUDA support
 if torch.cuda.is_available():
@@ -186,7 +190,10 @@ class PhysicsInformedNN_pbc():
         loss = loss_u + loss_b + self.L*loss_f
 
         if loss.requires_grad:
-            loss.backward()
+            # second-order optimizers (e.g. KronPSGD) probe the local
+            # curvature with a Hessian-vector product, which needs the
+            # gradient graph to be built rather than just filled in.
+            loss.backward(create_graph=isinstance(self.optimizer, KronPSGD))
 
         grad_norm = 0
         for p in self.dnn.parameters():

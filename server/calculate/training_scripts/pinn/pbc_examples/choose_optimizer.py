@@ -1,8 +1,15 @@
 """Optimizer choices."""
 
+import os
+import sys
+
 import torch
 import torch_optimizer as optim
 import numpy as np
+
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
+from kron_preconditioner import KronPSGD
 
 def choose_optimizer(optimizer_name: str, *params):
     if optimizer_name == 'LBFGS':
@@ -19,6 +26,8 @@ def choose_optimizer(optimizer_name: str, *params):
         return Adam(*params)
     elif optimizer_name == 'SGD':
         return SGD(*params)
+    elif optimizer_name == 'KronPSGD':
+        return Kron(*params)
 
 def LBFGS(model_param,
         lr=1.0,
@@ -147,4 +156,18 @@ def Apollo(model_param, lr=1e-2, beta=0.9, eps=1e-4, warmup=5, init_lr=0.01, wei
                             warmup=warmup,
                             init_lr=init_lr,
                             weight_decay=weight_decay)
+    return optimizer
+
+def Kron(model_param, lr=1e-3, step=0.5, weight_decay=0.0, balance_every=10):
+    """Kron-factored preconditioned SGD (PSGD with a stochastic Hessian fit).
+
+    Unlike the other choices here, the fit needs the loss to be
+    differentiated twice, so the closure passed to ``optimizer.step`` must
+    call ``loss.backward(create_graph=True)``. See kron_preconditioner.py.
+    """
+    optimizer = KronPSGD(model_param,
+                         lr=lr,
+                         step=step,
+                         weight_decay=weight_decay,
+                         balance_every=balance_every)
     return optimizer
