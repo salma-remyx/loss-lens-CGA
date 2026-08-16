@@ -144,7 +144,14 @@ observed_landing_zones:
       at net_pbc.py:100; the new 'SAM' and 'LateSAM' branche
     branch: sharpness-aware-minimization-efficiently-selects-flatter-min
     timestamp: '2026-08-10T18:42:29Z'
-  last_observed: '2026-08-10T18:42:29Z'
+  - arxiv: 2402.11858v6
+    mode: Mode 1 (direct port)
+    call_site_specifics: choose_optimizer() at server/calculate/training_scripts/pinn/pbc_examples/choose_optimizer.py:29,
+      reached from PhysicsInformedNN_pbc.__init__ (net_pbc.py:104), which is invoked
+      by the pre-existing mai
+    branch: stochastic-hessian-fittings-with-lie-groups
+    timestamp: '2026-08-16T18:01:09Z'
+  last_observed: '2026-08-16T18:01:09Z'
 rejected_shapes:
 - shape_tag: null
   reason_code: null
@@ -159,4 +166,4 @@ rejected_shapes:
   - arxiv: 2608.06276v1
     timestamp: '2026-08-13T03:07:17Z'
 coordination_signals: []
-last_updated: '2026-08-14T00:44:25Z'
+last_updated: '2026-08-16T18:01:09Z'
